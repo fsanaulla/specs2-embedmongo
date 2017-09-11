@@ -1,16 +1,16 @@
 package com.github.athieriot
 
-import scala.collection.JavaConversions._
-import com.mongodb.{ MongoClient, ServerAddress }
-import org.specs2.specification.AfterExample
+import com.mongodb.{MongoClient, ServerAddress}
+import org.specs2.specification.AfterAll
 
-trait CleanAfterExample extends AfterExample {
-  self: EmbedConnection =>
+import scala.collection.JavaConverters._
 
-  lazy val mongoClient = new MongoClient(new ServerAddress(network.getServerAddress(), network.getPort()));
+trait CleanAfterExample extends AfterAll { self: EmbedConnection =>
 
-  def after() {
-    mongoClient.getDatabaseNames().map { mongoClient.getDB(_) }.foreach { _.dropDatabase() }
+  lazy val mongoClient = new MongoClient(new ServerAddress(network.getServerAddress, network.getPort))
+
+  override def afterAll() {
+    mongoClient.listDatabaseNames().asScala.toList.map(mongoClient.getDatabase).foreach(_.drop)
   }
 
 }
